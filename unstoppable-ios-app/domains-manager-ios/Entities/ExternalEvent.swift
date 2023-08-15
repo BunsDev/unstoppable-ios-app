@@ -24,8 +24,11 @@ enum ExternalEvent: Codable, Hashable {
     case chatXMTPInvite(ChatXMTPInviteEventData)
     
     init?(pushNotificationPayload json: [AnyHashable : Any]) {
+        let jsonDebugString = json.map({ "\($0.key as? String ?? "") - \($0.value)" }).joined(separator: ", ").replacingOccurrences(of: "\n", with: "")
+        Debugger.printFailure("PNDEBUG: - Did receive push notification with payload: \(jsonDebugString)")
         guard let eventTypeRaw = json["type"] as? String,
               let pushNotificationType = PushNotificationType(rawValue: eventTypeRaw) else {
+            Debugger.printFailure("PNDEBUG: - Failed to parse type from PN payload: \(jsonDebugString)", critical: false)
             return nil
         }
         
@@ -116,6 +119,7 @@ enum ExternalEvent: Codable, Hashable {
                 }
             }
         } catch {
+            Debugger.printFailure("PNDEBUG: - Failed to parse content from PN payload: \(jsonDebugString)", critical: false)
             return nil
         }
     }
